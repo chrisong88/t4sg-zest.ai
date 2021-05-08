@@ -1,7 +1,6 @@
 import React from 'react';
 import '../style/MainNavBar.css';
 import logo from '../zest_logo_blue.png';
-import { color } from 'd3';
 
 function MainNavBar() {
     return (

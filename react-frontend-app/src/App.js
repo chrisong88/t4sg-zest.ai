@@ -12,9 +12,6 @@ import Footer from './components/Footer'
 import MainNavBar from './components/MainNavBar'
 import BarGraph from './components/BarGraph'
 import Button from 'react-bootstrap/Button';
-// import Container from 'react-bootstrap/Container';
-// import Form from 'react-bootstrap/Form';
-// import { Col } from 'react-bootstrap';
 
 function App() {
 
@@ -22,11 +19,13 @@ function App() {
 
   // bisgData stores probabilities from bisg
   var [bisgData, setbisgData] = useState('default bisg');
-  // zrpData stores probs from zrp model
-  var [zrpData, setzrpData] = useState('default zrp');
-  var [validAddress, setvalidAddress] = useState(false);
+
+  // zrpData stores probabilities from zrp model
+  var [zrpData, setZrpData] = useState('default zrp');
+  var [validAddress, setValidAddress] = useState(false);
   var [address, setAddress] = useState('empty');
 
+  // All input values
   const [allValues, setAllValues] = useState({
     first_name: '',
     middle_name: '',
@@ -44,30 +43,29 @@ function App() {
     setAllValues({ ...allValues, [e.target.name]: e.target.value })
   }
 
-  // useEffect(() => {console.log('loading', loading)}, [loading]);
-  // useEffect(() => {console.log('address', validAddress)}, [validAddress]);
-  // useEffect(() => {console.log("all values: ", allValues.street_address)}, [allValues.street_address]);
+  //Returns validated USPS API Response Object
+  function validateAddress() {
+    return axios.get(`https://secure.shippingapis.com/ShippingAPI.dll?API=Verify&XML=<AddressValidateRequest USERID="658HARVA0117"><Address ID="0"><Address1>${allValues.street_address}</Address1><Address2/><City>${allValues.city}</City><State>${allValues.state}</State><Zip5>${allValues.zipcode}</Zip5><Zip4/></Address></AddressValidateRequest>`)
+      .then(res => {
+        setAddress(res.data);
+        return res.data
+      });
+  }
 
   // Function that called when the submit button is pressed
   async function handleSubmit(event) {
     event.preventDefault();
     setLoading(true);
-    axios.get(`https://secure.shippingapis.com/ShippingAPI.dll?API=Verify&XML=<AddressValidateRequest USERID="658HARVA0117"><Address ID="0"><Address1>${allValues.street_address}</Address1><Address2/><City>${allValues.city}</City><State>${allValues.state}</State><Zip5>${allValues.zipcode}</Zip5><Zip4/></Address></AddressValidateRequest>`)
-      .then(res => {
-        setAddress(res.data);
-        if (res.data.includes("<Error>")) {
-          setvalidAddress(false);
-        }
-        else {
-          setvalidAddress(true);
-        }
-    });
 
-    if (validAddress) {
+    const addressData = await validateAddress();
+  
+    var isValid = addressData.includes("<Error>") ? false : true;         // Check for invalid responses
+    setAddress(addressData);
+    setValidAddress(isValid);
+
+    if (isValid) {
       var domParser = new DOMParser();
-      var xmlDocument = domParser.parseFromString(address, "text/xml");
-
-      console.log(xmlDocument);
+      var xmlDocument = domParser.parseFromString(addressData, "text/xml");
 
       setAllValues({
         first_name: allValues.first_name,
@@ -84,15 +82,12 @@ function App() {
       axios.get(`http://localhost:5000/surgeo?surname=${allValues.last_name}&zipcode=${allValues.zipcode}`)
       .then(res => {
         setbisgData(res.data);
-        // console.log("bisgData has been updated: ", res.data);
       });
       await axios.get(`http://localhost:5000/zrp?first_name=${allValues.first_name}&middle_name=${allValues.middle_name}&last_name=${allValues.last_name}&gender=${allValues.gender}&age=${allValues.age}&street_address=${allValues.street_address}&city=${allValues.city}&state=${allValues.state}&zipcode=${allValues.zipcode}`)
         .then(res => {
-          setzrpData(res.data);
-          // console.log("zrpData has been updated: ", res.data);
+          setZrpData(res.data);
         });
     }
-
     setLoading(false);
   }
 
@@ -107,7 +102,6 @@ function App() {
         First name: <input type="text" name="first_name" onChange={changeHandler} /> <br /> <br />
         Middle name: <input type="text" name="middle_name" onChange={changeHandler} /> <br /> <br />
         Last name: <input type="text" name="last_name" onChange={changeHandler} /> <br /> <br />
-        {/* Gender: <input type="text" name="gender" onChange={changeHandler} /> <br /> <br /> */}
         Gender: 
         <select type="text" name="gender" onChange={changeHandler}>
           <option value="U">U</option>
@@ -118,14 +112,16 @@ function App() {
         Street address: <input type="text" name="street_address" onChange={changeHandler} /> <br /> <br />
         City: <input type="text" name="city" onChange={changeHandler} /> <br /> <br />
         State:  
-        <select type="text" name="state" onChange={changeHandler}>
+        <select type="text" name="state" onChange={changeHandler} >
           <option value="FL">FL</option>
         </select> <br /> <br />
         Zip code: <input type="text" name="zipcode" onChange={changeHandler} /> <br /> <br />
         <Button type="submit" value="Submit">Submit</Button>
       </form>
+
       <br/>
-      {(!loading && !validAddress)
+
+      {(address!= 'empty' && !loading && !validAddress)
         ? <div> <h3> Please input a valid address. </h3></div>
         : <div> </div>
       }

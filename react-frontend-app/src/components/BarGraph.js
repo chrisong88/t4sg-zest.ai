@@ -7,35 +7,6 @@ import { axisLeft, axisTop } from "d3-axis";
 import { select, selectAll } from "d3-selection";
 import { format } from "d3-format";
 import { transition } from "d3-transition";
-// import '../style/BarGraph.css';
-
-// dummy data
-var data = {
-    "white": {
-        "bisg": "0.6700283648",
-        "zest": "0.6180442684"
-    },
-    "black": {
-        "bisg": "0.0033692506",
-        "zest": "0.0153741615"
-    },
-    "api": {
-        "bisg": "0.309192341",
-        "zest": "0.3543504815"
-    },
-    "native": {
-        "bisg": "0.0019506335",
-        "zest": "0.0010750276"
-    },
-    "multiple": {
-        "bisg": "0.0064047544",
-        "zest": "0.0093698772"
-    },
-    "hispanic": {
-        "bisg": "0.0090546558",
-        "zest": "0.0017861839"
-    }
-};
 
 const d3 = {
     select,
@@ -75,7 +46,7 @@ class BarGraph extends React.Component {
     }
 
     async componentDidMount() {
-        this.createBar(data);
+        this.createBar();
     }
 
     componentDidUpdate() {
@@ -93,11 +64,10 @@ class BarGraph extends React.Component {
             zrpHispanic: this.props.zrpHispanic,
             zrpApi: this.props.zrpApi
         };
-        this.createBar(data);
-        // console.log("componentDidUpdate function called");
+        this.createBar();
     }
 
-    createBar(data) {
+    createBar() {
         var chartWidth = 300,
             barHeight = 20,
             groupHeight = barHeight * 2,
@@ -109,8 +79,7 @@ class BarGraph extends React.Component {
         var races = ["white", "black", "api", "native", "multiple", "hispanic"];
         var racesCaps = ["White", "Black", "Asian/PI", "Native", "Multiple", "Hispanic"];
         for (var i = 0; i < 6; i++) {
-            // zippedData.push(parseFloat(data[races[i]].zest));
-            // zippedData.push(parseFloat(data[races[i]].bisg));
+
             switch (races[i]) {
                 case "white":
                     zippedData.push(this.state.zrpWhite);

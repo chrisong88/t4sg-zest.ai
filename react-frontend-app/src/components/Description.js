@@ -1,8 +1,6 @@
 import React from 'react';
 import '../style/Description.css';
 
-// TO-DO: AUSTIN(?)
-
 class Description extends React.Component {
     constructor(props) {
         super(props)

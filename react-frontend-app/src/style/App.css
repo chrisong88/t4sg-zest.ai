@@ -40,7 +40,7 @@
 h1 {
   font-size: 3.5em;
   font-style: normal;
-  font-weight: 1200;
+  font-weight: 1000;
   line-height: 50px;
   letter-spacing: 0em;
   padding-top: 0.3em;
@@ -49,12 +49,3 @@ h1 {
 label {
   font-size: 1.25em;
 }
-
-
-/* TO-DO: AUSTIN
-
-Here you should add CSS classes and ids in order to style the general front-end of the React app.
-
-If you want to make 
-
-*/
